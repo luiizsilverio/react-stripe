@@ -29,17 +29,24 @@ export default function PaymentForm() {
 
   const handleSubmit = async(e) => {
     e.preventDefault();
+
+    if (!stripe || !elements) return;
+
+    const cardElement = elements.getElement(CardElement);
+
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
-      card: elements.getElement(CardElement)
+      card: cardElement,
     })
 
     if (!error) {
       try {
         const { id } = paymentMethod
         const response = await axios.post(`${process.env.REACT_APP_API_URL}/payment`, {
-          amount: 1.11,
-          id
+          amount: 110, /* multiplicar por 100. Assim, para valor 1.10, informe 110 */
+          id,
+          name: "Luiiz S.",
+          email: "luiiz@gmail.com" /* name e email opcionais */
         })
 
         if (response.data.success) {

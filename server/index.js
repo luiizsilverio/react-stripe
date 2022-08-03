@@ -11,18 +11,29 @@ app.use(cors());
 // Rotas
 
 app.post("/payment", async (req, res) => {
-  let { amount, id } = req.body;
+  const { amount, id, email, name } = req.body;
 
-  try {
-    const payment = await stripe.paymentIntents.create({
-      amount,
-      currency: "BRL",
-      description: "My-Shopee",
-      payment_method: id,
-      confirm: true
+  const paymentOptions = {
+    amount,
+    currency: "BRL",
+    description: "My-Shopee",
+    payment_method: id,
+    confirm: true,
+  }
+
+  // opcionalmente, podemos passar os dados do cliente (nome, email)
+  if (email && name) {
+    const customer = await stripe.customers.create({
+      email,
+      name,
     });
 
-    console.log("Payment", payment);
+    paymentOptions.customer = customer.id;
+  }
+
+  try {
+    const payment = await stripe.paymentIntents.create(paymentOptions);
+
     res.json({
       message: "Pagamento bem sucedido",
       success: true,
