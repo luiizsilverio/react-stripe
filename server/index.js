@@ -34,9 +34,20 @@ app.post("/payment", async (req, res) => {
   try {
     const payment = await stripe.paymentIntents.create(paymentOptions);
 
+    const data = {
+      id: payment.id,
+      customer: payment.customer,
+      message: payment.charges.data[0].outcome.seller_message,
+      status: payment.charges.data[0].outcome.type,
+      url: payment.charges.data[0].receipt_url,
+    }
+
+    // console.log(JSON.stringify(data));
+
     res.json({
       message: "Pagamento bem sucedido",
       success: true,
+      data
     });
 
   } catch (error) {
